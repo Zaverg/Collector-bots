@@ -25,7 +25,7 @@ public class Taker : State
             _stateMachine.PutInStorage(interactive);
 
             interactive.Transform.SetParent(_stateMachine.Transform);
-            interactive.Transform.position = Vector3.zero;
+            interactive.Transform.localPosition = Vector3.zero;
 
             _isTake = true;      
         }
