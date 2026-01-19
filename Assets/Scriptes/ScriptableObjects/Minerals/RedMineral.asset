@@ -15,5 +15,5 @@ MonoBehaviour:
   _type: 0
   _mesh: {fileID: 4300000, guid: 20b50cde428e8a14b87a3f09a9025d3e, type: 3}
   _material: {fileID: 2100000, guid: 712bcc706d49fbf41ae3b84ee1b6443d, type: 2}
-  _collectionTime: 2
+  _miningDuration: 2
   _rarity: 2
