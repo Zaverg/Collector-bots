@@ -11,19 +11,15 @@ public class TakingState : CollectorState
     {
         _stateMachine = stateMachine;
         _cell = _stateMachine.CurrentTask.Cell;
+
+        ICollectable interactive = _cell.ExtractItem();
+        interactive.OnPickedUp();
+        _stateMachine.SetStoredItem(interactive);
+
+        _isTake = true;
     }
 
-    public override void Run()
-    {
-        if (_isTake == false)
-        {
-            ICollectable interactive = _cell.ExtractItem();
-            interactive.OnPickedUp();
-            _stateMachine.SetStoredItem(interactive);
-
-            _isTake = true;      
-        }
-    }
+    public override void Run() { }
 
     public override void Exit() 
     {

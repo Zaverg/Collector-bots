@@ -7,15 +7,6 @@ public class DropZone : MonoBehaviour
 
     public event Action<int> MineralCountChanged;
 
-    public void OnTriggerEnter(Collider other)
-    {
-        if (other.TryGetComponent(out Mineral mineral))
-        {
-            _collectedMinerals++;
-            MineralCountChanged?.Invoke(_collectedMinerals);
-        }
-    }
-
     public void OnTriggerStay(Collider other)
     {
         if (other.TryGetComponent(out Mineral mineral))
@@ -23,6 +14,8 @@ public class DropZone : MonoBehaviour
             if (mineral.Status == MineralStatus.Dropped)
             {
                 mineral.ResetToPool();
+                _collectedMinerals++;
+                MineralCountChanged?.Invoke(_collectedMinerals);
             }
         }
     }

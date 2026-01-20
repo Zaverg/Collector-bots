@@ -18,9 +18,6 @@ public class Mineral : MonoBehaviour, IReleasable<Mineral>, ICollectable
         if (config == null)
             return;
 
-        if (config.GetType() != typeof(MineralConfig))
-            return;
-
         _mineralConfig = config;
 
         GetComponent<MeshFilter>().mesh = _mineralConfig.Mesh;

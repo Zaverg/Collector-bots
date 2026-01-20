@@ -17,19 +17,19 @@ public class Cell
 
     public Vector3 WorldPosition => _worldPosition;
     public Vector2Int GridPosition => _gridPosition;
-    public bool IsFree => _item == null;
     public ICollectable Item => _item;
  
     public void OccupyWithItem(ICollectable item)
     {
         _item = item;
+        item.Transform.position = _worldPosition;
     }
 
     public ICollectable ExtractItem()
     {
         ICollectable item = _item;
-        Freed?.Invoke(this);
         _item = null;
+        Freed?.Invoke(this);
 
         return item;
     }

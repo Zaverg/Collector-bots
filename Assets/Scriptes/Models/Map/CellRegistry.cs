@@ -1,17 +1,17 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class CellRegistry : MonoBehaviour
 {
     [SerializeField] private Map _map;
-    private Cell[,] _grid;
 
-    private List<Cell> _freeCells = new List<Cell>();
-    private List<Cell> _occupiedCells = new List<Cell>();
+    private HashSet<Cell> _freeCells = new HashSet<Cell>();
+    private HashSet<Cell> _occupiedCells = new HashSet<Cell>();
 
     private GridCreator _gridCreator;
 
-    public IReadOnlyList<Cell> OccupiedCells => _occupiedCells;
+    public IReadOnlyList<Cell> OccupiedCells => _occupiedCells.ToList();
 
     private void OnEnable()
     {
@@ -34,9 +34,9 @@ public class CellRegistry : MonoBehaviour
     public void Initialize()
     {
         _gridCreator = new GridCreator();
-        _grid = _gridCreator.Create(_map);
+        _gridCreator.Create(_map);
 
-        _freeCells = new List<Cell>(_gridCreator.AllCells);
+        _freeCells = new HashSet<Cell>(_gridCreator.AllCells);
 
         gameObject.SetActive(true);
     }
@@ -45,13 +45,12 @@ public class CellRegistry : MonoBehaviour
     {
         int index = Random.Range(0, _freeCells.Count);
 
-        Cell cell = _freeCells[index];
+        Cell cell = _freeCells.ElementAt(index);
 
         _freeCells.Remove(cell);
         _occupiedCells.Add(cell);
         
         cell.OccupyWithItem(mineral);
-        mineral.transform.position = new Vector3(cell.WorldPosition.x, cell.WorldPosition.y, cell.WorldPosition.z);
     }
 
     public void ReleaseCell(Cell cell)

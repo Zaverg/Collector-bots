@@ -32,7 +32,7 @@ public class MovingState : CollectorState
 
         _currentSeconds += Time.deltaTime;
 
-        if (_currentSeconds - _lastUpdateTime >= 0.1f)
+        if (_currentSeconds - _lastUpdateTime >= _intervalUpdatePath)
         {
             _agent.SetDestination(_targetPosition);
             _lastUpdateTime = _currentSeconds;
