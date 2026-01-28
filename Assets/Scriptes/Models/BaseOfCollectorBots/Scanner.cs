@@ -1,32 +1,35 @@
-﻿using System.Collections.Generic;
+using System;
+using UnityEngine;
 
 public class Scanner
 {
-    private CellRegistry _gridTracker;
+    private Vector3 _center;
+    private float _scaneRadius;
+    private LayerMask _layr;
 
-    public Scanner(CellRegistry gridTracker)
+    private Collider[] collidersBuffer = new Collider[5];
+
+    public event Action<ICollectable> Detected;
+
+    public Scanner(Vector3 center,LayerMask layer, float radius = 0)
     {
-        _gridTracker = gridTracker;
+        _center = center;
+        _layr = layer;
+        _scaneRadius = radius;
     }
-   
-    public List<Cell> ScanForFreeMinerals()
+
+    public void Scan() 
     {
-        List<Cell> scannedMinerals = new List<Cell>();
+        if (Physics.OverlapSphereNonAlloc(_center, _scaneRadius, collidersBuffer, _layr) == 0)
+            return;
 
-        foreach (Cell cell in _gridTracker.OccupiedCells)
+        for (int i = 0; i < collidersBuffer.Length; i++)
         {
-            ICollectable interactive = cell.Item;
+            if (collidersBuffer[i] == null) 
+                continue;
 
-            if (interactive is Mineral mineral)
-            {
-                if (mineral.Status != MineralStatus.Free)
-                    continue;
-
-                mineral.MarkAsScanned();
-                scannedMinerals.Add(cell);
-            }
+            if (collidersBuffer[i].TryGetComponent(out ICollectable colectable))
+                Detected.Invoke(colectable);
         }
-
-        return scannedMinerals;
     }
 }

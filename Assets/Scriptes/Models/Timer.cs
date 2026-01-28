@@ -9,9 +9,15 @@ public class Timer
 
     private bool _isComplete = false;
     private Coroutine _coroutine;
+    private ICoroutineRuner _coroutineRuner;
     
     public event Action Ended;
     public event Action<float> Changed;
+
+    public Timer(ICoroutineRuner corutineRuner)
+    {
+        _coroutineRuner = corutineRuner;
+    }
 
     public bool IsComplete => _isComplete;
 
@@ -29,12 +35,12 @@ public class Timer
             return;
 
         if (_coroutine != null)
-            CoroutineStarter.Instance.StopChildCoroutine(_coroutine);
+            _coroutineRuner.StopChildCoroutine(_coroutine);
 
         _currentSeconds = _duration;
         _isComplete = false;
 
-        _coroutine = CoroutineStarter.Instance.StartChildCoroutine(StartTimer());
+        _coroutine = _coroutineRuner.StartChildCoroutine(StartTimer());
     }
 
     private IEnumerator StartTimer()
@@ -57,7 +63,6 @@ public class Timer
 
         _isComplete = true;
 
-        if (Ended != null)
-            Ended.Invoke();
+        Ended?.Invoke();
     }
 }

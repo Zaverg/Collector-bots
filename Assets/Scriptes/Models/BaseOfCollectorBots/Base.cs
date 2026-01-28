@@ -5,17 +5,18 @@ public class Base : MonoBehaviour
 {
     [SerializeField] private List<CollectorBot> _collectors = new List<CollectorBot>();
 
-    [SerializeField] private CellRegistry _gridTracker;
-    [SerializeField] private DropZone _dropZone;
+    [SerializeField] private DeliveryZone _deliveryZone;
     [SerializeField] private TimerViewer _scanIntervalView;
-    [SerializeField] private MineralCountViewer _mineralCountView;
 
     [SerializeField] private float _scanInterval;
+    [SerializeField] private float _scanRadius;
+    [SerializeField] private LayerMask _scanLayer;
 
-    private Queue<Cell> _availableTargets = new Queue<Cell>();
     private Queue<CollectorBot> _availableCollectors;
 
+    private MineralRegistry _mineralRegistry;
     private Scanner _scanner;
+    private ICoroutineRuner _coroutineRunner;
     private Timer _timer;
 
     private void OnEnable()
@@ -25,7 +26,7 @@ public class Base : MonoBehaviour
         
         _timer.Ended += ActivateScanner;
         _timer.Changed += _scanIntervalView.UpdateView;
-        _dropZone.MineralCountChanged += _mineralCountView.UpdateView;
+        _scanner.Detected += _mineralRegistry.Register;
 
         foreach (CollectorBot collector in _collectors)
             collector.Freed += EnqueueCollector;
@@ -38,7 +39,7 @@ public class Base : MonoBehaviour
 
         _timer.Ended -= ActivateScanner;
         _timer.Changed -= _scanIntervalView.UpdateView;
-        _dropZone.MineralCountChanged -= _mineralCountView.UpdateView;
+        _scanner.Detected -= _mineralRegistry.Register;
 
         foreach (CollectorBot collector in _collectors)
             collector.Freed -= EnqueueCollector;
@@ -51,7 +52,7 @@ public class Base : MonoBehaviour
 
     private void Update()
     {
-        if (_availableTargets.Count == 0 || _availableCollectors.Count == 0)
+        if (_mineralRegistry.AvailableMineralsCount == 0 || _availableCollectors.Count == 0)
             return;
 
         CollectorBot collector = _availableCollectors.Dequeue();
@@ -59,46 +60,43 @@ public class Base : MonoBehaviour
         AssignMiningTask(collector);
     }
 
-    public void Initialize()
+    public void Initialize(ICoroutineRuner coroutineRuner, MineralRegistry mineralRegistry)
     {
-        _scanner = new Scanner(_gridTracker);
-        _timer = new Timer();
+        _mineralRegistry = mineralRegistry;
+        _coroutineRunner = coroutineRuner;
 
+        _scanner = new Scanner(transform.position, _scanLayer, _scanRadius);
+
+        _timer = new Timer(_coroutineRunner);
         _timer.SetDuration(_scanInterval);
+
         _availableCollectors = new Queue<CollectorBot>(_collectors);
 
         gameObject.SetActive(true);
     }
 
-    public void AssignMiningTask(CollectorBot collector)
+    private void AssignMiningTask(CollectorBot collector)
     {
-        Cell cell = _availableTargets.Dequeue();
+        ICollectable mineral = _mineralRegistry.GetAvailableMineral();
 
         Queue<CollectorBotTask> tasks = new Queue<CollectorBotTask>();
 
-        tasks.Enqueue(new CollectorBotTask(StateType.Moving, cell.WorldPosition));
-        tasks.Enqueue(new CollectorBotTask(StateType.Mining, cell: cell));
-        tasks.Enqueue(new CollectorBotTask(StateType.Taking, cell: cell));
-        tasks.Enqueue(new CollectorBotTask(StateType.Moving, _dropZone.transform.position));
-        tasks.Enqueue(new CollectorBotTask(StateType.Dropping));
+        tasks.Enqueue(new CollectorBotTask(StateType.Moving, mineral.Transform.position));
+        tasks.Enqueue(new CollectorBotTask(StateType.Mining, mineral: mineral, coroutineStarter: _coroutineRunner));
+        tasks.Enqueue(new CollectorBotTask(StateType.Taking, mineral: mineral));
+        tasks.Enqueue(new CollectorBotTask(StateType.Moving, _deliveryZone.transform.position));
 
-        collector.AssignTask(tasks);
+        collector.AssignTasks(tasks);
     }
 
     private void ActivateScanner()
     {
-        List<Cell> cells = _scanner.ScanForFreeMinerals();
-
-        foreach (Cell cell in cells)
-        {
-            _availableTargets.Enqueue(cell);
-        }
-
+        _scanner.Scan();
         _timer.Run();
     }
 
-    private void EnqueueCollector(CollectorBot collector)
+    private void EnqueueCollector(CollectorBot collectorBot)
     {
-        _availableCollectors.Enqueue(collector);
+        _availableCollectors.Enqueue(collectorBot);
     }
 }

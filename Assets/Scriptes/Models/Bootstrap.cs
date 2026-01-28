@@ -4,22 +4,47 @@ public class Bootstrap : MonoBehaviour
 {
     [SerializeField] private Base _base;
     [SerializeField] private MineralSpawner _mineralSpawner;
+    [SerializeField] private CoroutineRuner _coroutineStarter;
+
+    [Header("MineralSpawner")]
+    [SerializeField] private SpawnGrid _cellRegister;
     [SerializeField] private ObjectPoolMineral _objectPullMineral;
-    [SerializeField] private CoroutineStarter _coroutineStarter;
-    [SerializeField] private CellRegistry _gridTracker;
     [SerializeField] private Map _map;
+
+    [Header("Base")]
+    [SerializeField] private DeliveryZone _deliverZone;
+    [SerializeField] private ResurceCounter _reesurceCounter;
+    [SerializeField] private MineralRegistry _mineralRegistry;
+
+    [Header("View")]
+    [SerializeField] private MineralCountViewer _mineralCountView;
+
+    private void OnEnable()
+    {
+        _deliverZone.ResourceDelivered += _reesurceCounter.UpdateCounter;
+        _deliverZone.ResourceDelivered += _mineralRegistry.RemoveMineral;
+        _reesurceCounter.MineralCountChanged += _mineralCountView.UpdateView;
+    }
+
+    private void OnDisable()
+    {
+        _deliverZone.ResourceDelivered -= _reesurceCounter.UpdateCounter;
+        _deliverZone.ResourceDelivered -= _mineralRegistry.RemoveMineral;
+
+        _reesurceCounter.MineralCountChanged -= _mineralCountView.UpdateView;
+    }
 
     private void Awake()
     {
-        _gridTracker.gameObject.SetActive(false);
+        _cellRegister.gameObject.SetActive(false);
         _mineralSpawner.gameObject.SetActive(false);
         _base.gameObject.SetActive(false);
 
-        _coroutineStarter.Initialize();
         _map.Initialize();
         _objectPullMineral.Initialize();
-        _gridTracker.Initialize();
-        _mineralSpawner.Initialize();
-        _base.Initialize();        
+        _cellRegister.Initialize();
+
+        _mineralSpawner.Initialize(_coroutineStarter, _mineralRegistry);
+        _base.Initialize(_coroutineStarter, _mineralRegistry);        
     }
 }

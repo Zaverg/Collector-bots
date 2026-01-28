@@ -12,7 +12,6 @@ public class Map : MonoBehaviour
     private float _halfScaleMapX;
     private float _halfScaleMapZ;
 
-
     public float HalfScaleMapX => _halfScaleMapX;
     public float HalfScaleMapZ => _halfScaleMapZ;
 

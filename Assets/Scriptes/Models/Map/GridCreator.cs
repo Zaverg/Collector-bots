@@ -4,6 +4,7 @@ using UnityEngine.AI;
 
 public class GridCreator
 {
+    private readonly static int s_areaIndex = NavMesh.GetAreaFromName("Walkable");
     private List<Cell> _allCells = new List<Cell>();
 
     public IReadOnlyList<Cell> AllCells => _allCells;
@@ -21,6 +22,8 @@ public class GridCreator
 
         int rows = Mathf.CeilToInt((end.Item1 -  start.Item1) /  cellSizeX);
         int columns = Mathf.CeilToInt((end.Item2 - start.Item2) / cellSizeZ);
+
+        int areaMask = 1 << s_areaIndex;
 
         Cell[,] grid = new Cell[rows, columns];
 
@@ -41,7 +44,7 @@ public class GridCreator
                 Vector3 startArea = new Vector3(positionX, distanceStartY, positionZ);
                 Vector3 target = new Vector3(positionX, map.transform.position.y - 1, positionZ);
 
-                if (NavMesh.SamplePosition(startArea, out NavMeshHit hit, distanceStartY, NavMesh.AllAreas))
+                if (NavMesh.SamplePosition(startArea, out NavMeshHit hit, distanceStartY, areaMask))
                 {
                     Vector3 cellWorldPosition = hit.position;
                     Vector2Int cellGridPosition = new Vector2Int(i, j);

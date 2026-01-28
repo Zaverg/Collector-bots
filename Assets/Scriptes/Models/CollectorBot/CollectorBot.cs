@@ -3,13 +3,15 @@ using UnityEngine.AI;
 using System.Collections.Generic;
 using System;
 
-[RequireComponent(typeof(NavMeshAgent), typeof(AnimationController))]
-public class CollectorBot : MonoBehaviour, IStateMachine
+[RequireComponent(typeof(NavMeshAgent), typeof(UnitAnimator))]
+public class CollectorBot : MonoBehaviour, IStateMachine, IResourceDeliverer
 {
+    [SerializeField] private Transform _storagePositon;
+
     private Queue<CollectorBotTask> _tasks = new Queue<CollectorBotTask>();
     private Dictionary<StateType, CollectorState> _states = new Dictionary<StateType, CollectorState>();
 
-    private AnimationController _animationController;
+    private UnitAnimator _animationController;
 
     private CollectorBotTask _currentTask;
     private CollectorState _currentState;
@@ -24,7 +26,7 @@ public class CollectorBot : MonoBehaviour, IStateMachine
     public Transform Transform => transform;
     public ICollectable Storage => _storage;
     public CollectorBotTask CurrentTask => _currentTask;
-    public AnimationController AnimationController => _animationController;
+    public UnitAnimator AnimationController => _animationController;
 
     public void Awake()
     {
@@ -37,7 +39,7 @@ public class CollectorBot : MonoBehaviour, IStateMachine
         _idleState = new Idle();
         _currentState = _idleState;
 
-        _animationController = GetComponent<AnimationController>();
+        _animationController = GetComponent<UnitAnimator>();
 
         _currentState.Entry(this);
     }
@@ -65,23 +67,33 @@ public class CollectorBot : MonoBehaviour, IStateMachine
         }
     }
 
-    public void AssignTask(Queue<CollectorBotTask> tasks)
+    public void AssignTasks(Queue<CollectorBotTask> tasks)
     {
         _tasks = new Queue<CollectorBotTask>(tasks);
     }
 
-    public void SetStoredItem(ICollectable item)
+    public void PlaceResourceInStorage(ICollectable item)
     {
         _storage = item;
 
         item.Transform.SetParent(transform);
-        item.Transform.localPosition = Vector3.zero;
+        item.Transform.position = _storagePositon.position;
     }
 
-    public void DropItem()
+    public ICollectable ReleaseResource()
     {
+        ICollectable collectable = _storage;
+        ClearStorag();
+
+        return collectable;
+    }
+
+    private void ClearStorag()
+    {
+        if (_storage == null)
+            return;
+
         _storage.Transform.SetParent(null);
-        _storage.OnDropped();
         _storage = null;
     }
 

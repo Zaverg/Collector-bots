@@ -5,9 +5,6 @@ public class Cell
 {
     private Vector3 _worldPosition;
     private Vector2Int _gridPosition;
-    private ICollectable _item;
-
-    public event Action<Cell> Freed;
 
     public Cell(Vector3 position, Vector2Int gridPosition)
     {
@@ -17,20 +14,4 @@ public class Cell
 
     public Vector3 WorldPosition => _worldPosition;
     public Vector2Int GridPosition => _gridPosition;
-    public ICollectable Item => _item;
- 
-    public void OccupyWithItem(ICollectable item)
-    {
-        _item = item;
-        item.Transform.position = _worldPosition;
-    }
-
-    public ICollectable ExtractItem()
-    {
-        ICollectable item = _item;
-        _item = null;
-        Freed?.Invoke(this);
-
-        return item;
-    }
 }

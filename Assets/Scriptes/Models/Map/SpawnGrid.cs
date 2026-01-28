@@ -2,34 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 
-public class CellRegistry : MonoBehaviour
+public class SpawnGrid : MonoBehaviour
 {
     [SerializeField] private Map _map;
 
     private HashSet<Cell> _freeCells = new HashSet<Cell>();
     private HashSet<Cell> _occupiedCells = new HashSet<Cell>();
 
+    private Dictionary<ICollectable, Cell> _mineralsToCells = new Dictionary<ICollectable, Cell>();
+
     private GridCreator _gridCreator;
-
-    public IReadOnlyList<Cell> OccupiedCells => _occupiedCells.ToList();
-
-    private void OnEnable()
-    {
-        if (_gridCreator == null)
-            return;
-
-        foreach (Cell cell in _freeCells)
-            cell.Freed += ReleaseCell;
-    }
-
-    private void OnDisable()
-    {
-        if (_gridCreator == null)
-            return;
-
-        foreach (Cell cell in _freeCells)
-            cell.Freed -= ReleaseCell;
-    }
 
     public void Initialize()
     {
@@ -41,21 +23,30 @@ public class CellRegistry : MonoBehaviour
         gameObject.SetActive(true);
     }
 
-    public void OccupyCell(Mineral mineral)
+    public void OccupyCell(ICollectable mineral)
     {
+        mineral.Taked += OnMineralTaked;
+     
         int index = Random.Range(0, _freeCells.Count);
 
         Cell cell = _freeCells.ElementAt(index);
+        _mineralsToCells[mineral] = cell;
+
+        mineral.Transform.position = cell.WorldPosition;
 
         _freeCells.Remove(cell);
         _occupiedCells.Add(cell);
-        
-        cell.OccupyWithItem(mineral);
     }
-
-    public void ReleaseCell(Cell cell)
+   
+    private void OnMineralTaked(ICollectable collectable)
     {
+        collectable.Taked -= OnMineralTaked;
+
+        Cell cell = _mineralsToCells[collectable];
+
         _occupiedCells.Remove(cell);
         _freeCells.Add(cell);
+
+        _mineralsToCells.Remove(collectable);
     }
 }

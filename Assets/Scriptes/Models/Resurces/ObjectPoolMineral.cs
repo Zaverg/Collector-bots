@@ -29,9 +29,4 @@ public class ObjectPoolMineral : ObjectPool<Mineral>
 
         return mineral;
     }
-
-    public void PutMineral(Mineral mineral)
-    {
-        PutObject(mineral);
-    }
 }

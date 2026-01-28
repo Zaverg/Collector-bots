@@ -12,6 +12,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Mineral
       objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 942d5b3010cc3bc4893eb45aeb204597, type: 3}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 942d5b3010cc3bc4893eb45aeb204597, type: 3}
       propertyPath: m_LocalPosition.x
       value: 7.9594507
@@ -89,6 +93,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea31dad7a419e3f4786e285369d54e03, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _status: 0
+  _mineralConfig: {fileID: 0}
 --- !u!136 &-1688937969333203805
 CapsuleCollider:
   m_ObjectHideFlags: 0

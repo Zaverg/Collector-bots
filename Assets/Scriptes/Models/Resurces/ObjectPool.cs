@@ -8,6 +8,8 @@ public abstract class ObjectPool<T> : MonoBehaviour where T : Component, IReleas
     private Queue<T> _availableObjects;
     private List<T> _allObjects;
 
+    private int _counter = 0;
+
     public void OnDisable()
     {
         foreach (T obj in _allObjects)
@@ -31,6 +33,7 @@ public abstract class ObjectPool<T> : MonoBehaviour where T : Component, IReleas
 
         if (_availableObjects.Count == 0)
         {
+            _counter++;
             newObject = Instantiate(_prefab);
             newObject.Released += PutObject;
 
@@ -45,9 +48,10 @@ public abstract class ObjectPool<T> : MonoBehaviour where T : Component, IReleas
         return newObject;
     }
      
-    protected virtual void PutObject(T obj)
+    private void PutObject(T obj)
     {
         _availableObjects.Enqueue(obj);
+        obj.transform.position = transform.position;
         obj.gameObject.SetActive(false);
     }
 }

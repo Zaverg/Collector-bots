@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 [RequireComponent(typeof(Animator))]
-public class AnimationController : MonoBehaviour
+public class UnitAnimator : MonoBehaviour
 {
     private static readonly int s_move = Animator.StringToHash("IsMove");
 

@@ -6,8 +6,11 @@
     {
         _stateMachine = stateMachine;
 
-        if (_stateMachine.Storage != null)
-            _stateMachine.DropItem();
+        if (_stateMachine is IResourceDeliverer resourceDeliverer)
+        {
+            ICollectable collectable = resourceDeliverer.ReleaseResource();
+            collectable.Drope();
+        }
     }
 
     public override void Run() { }
@@ -19,6 +22,6 @@
 
     public override bool IsComplete()
     {
-        return _stateMachine.Storage == null;
+        return true;
     }
 }

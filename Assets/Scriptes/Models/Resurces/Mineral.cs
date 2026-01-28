@@ -3,13 +3,12 @@ using UnityEngine;
 
 public class Mineral : MonoBehaviour, IReleasable<Mineral>, ICollectable
 {
-    [SerializeField] private MineralStatus _status;
-
     [SerializeField] private MineralConfig _mineralConfig;
 
     public event Action<Mineral> Released;
+    public event Action<ICollectable> Taked;
+    public event Action<ICollectable> Dropped;
 
-    public MineralStatus Status => _status;
     public Transform Transform => transform;
     public MineralConfig Config => _mineralConfig;
 
@@ -24,29 +23,18 @@ public class Mineral : MonoBehaviour, IReleasable<Mineral>, ICollectable
         GetComponent<MeshRenderer>().material = _mineralConfig.Material;
     }
 
-    public void OnPickedUp()
+    public void Take()
     {
-        _status = MineralStatus.Taken;
+        Taked?.Invoke(this);
     }
 
-    public void OnDropped()
+    public void Drope()
     {
-        _status = MineralStatus.Dropped;
+        Dropped?.Invoke(this);
     }
 
-    public void MarkAsScanned()
+    public void ReturnToPool()
     {
-        _status = MineralStatus.Scanned;
-    }
-
-    public void MarkAsTargeted()
-    {
-        _status = MineralStatus.Targeted;
-    }
-
-    public void ResetToPool()
-    {
-        _status = MineralStatus.Free;
         Released?.Invoke(this);
     }
 }

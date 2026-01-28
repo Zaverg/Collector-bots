@@ -2,15 +2,13 @@ public class MiningState : CollectorState
 {
     private IStateMachine _stateMachine;
     private Timer _timer;
-    private Cell _cell;
 
     public override void Entry(IStateMachine stateMachine)
     {
         _stateMachine = stateMachine;
-        _timer = new Timer();
-        _cell = _stateMachine.CurrentTask.Cell;
+        _timer = new Timer(stateMachine.CurrentTask.CoroutineStarter);
 
-        ICollectable collectable = _cell.Item;
+        ICollectable collectable = _stateMachine.CurrentTask.Mineral;
         float duration = collectable.Config.MiningDuration;
 
         _timer.SetDuration(duration);
@@ -22,7 +20,6 @@ public class MiningState : CollectorState
     public override void Exit()
     {
         _timer = null;
-        _cell = null;
         _stateMachine = null;
     }
 

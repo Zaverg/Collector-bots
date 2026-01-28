@@ -11,7 +11,7 @@ NavMeshProjectSettings:
     cost: 1
   - name: Jump
     cost: 1
-  - name: 
+  - name: Not Resurce
     cost: 1
   - name: 
     cost: 1
@@ -74,7 +74,7 @@ NavMeshProjectSettings:
   - serializedVersion: 3
     agentTypeID: 0
     agentRadius: 0.75
-    agentHeight: 3
+    agentHeight: 4
     agentSlope: 30
     agentClimb: 0.75
     ledgeDropHeight: 3
