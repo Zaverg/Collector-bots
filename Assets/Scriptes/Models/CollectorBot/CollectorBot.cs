@@ -4,9 +4,11 @@ using System.Collections.Generic;
 using System;
 
 [RequireComponent(typeof(NavMeshAgent), typeof(UnitAnimator))]
-public class CollectorBot : MonoBehaviour, IStateMachine, IResourceDeliverer
+public class CollectorBot : MonoBehaviour, IStateMachine
 {
-    [SerializeField] private Transform _storagePositon;
+    [SerializeField] private Mover _mover;
+    [SerializeField] private Taker _taker;
+    [SerializeField] private Mining _mining;
 
     private Queue<CollectorBotTask> _tasks = new Queue<CollectorBotTask>();
     private Dictionary<StateType, CollectorState> _states = new Dictionary<StateType, CollectorState>();
@@ -15,20 +17,20 @@ public class CollectorBot : MonoBehaviour, IStateMachine, IResourceDeliverer
 
     private CollectorBotTask _currentTask;
     private CollectorState _currentState;
-    private CollectorState _idleState;
-
-    private ICollectable _storage;
 
     public event Action<CollectorBot> Freed;
 
-    public bool IsFree => _tasks.Count <= 0;
+    public bool HasTask => _tasks.Count > 0;
+
+    public IMoveble Mover => _mover;
+    public ITaker Taker => _taker;
+    public IMining Mining => _mining;
 
     public Transform Transform => transform;
-    public ICollectable Storage => _storage;
     public CollectorBotTask CurrentTask => _currentTask;
     public UnitAnimator AnimationController => _animationController;
 
-    public void Awake()
+    public void Initialize()
     {
         _states[StateType.Idle] = new Idle();
         _states[StateType.Moving] = new MovingState();
@@ -36,8 +38,7 @@ public class CollectorBot : MonoBehaviour, IStateMachine, IResourceDeliverer
         _states[StateType.Dropping] = new DroppingState();
         _states[StateType.Mining] = new MiningState();
 
-        _idleState = new Idle();
-        _currentState = _idleState;
+        _currentState = _states[StateType.Idle];
 
         _animationController = GetComponent<UnitAnimator>();
 
@@ -48,53 +49,28 @@ public class CollectorBot : MonoBehaviour, IStateMachine, IResourceDeliverer
     {
         bool isCompleted = _currentState.IsComplete();
 
-        if (isCompleted == false)
+        if (isCompleted)
         {
-            _currentState.Run();
-        }
-        else
-        {
-            if (IsFree == false)
+            if (HasTask)
             {
                 _currentTask = _tasks.Dequeue();
                 SwitchToState(_states[_currentTask.StateType]);
 
                 return;
             }
-            
-            SwitchToState(_idleState);
+
+            SwitchToState(_states[StateType.Idle]);
             Freed?.Invoke(this);
+        }
+        else
+        {
+            _currentState.Run(); 
         }
     }
 
     public void AssignTasks(Queue<CollectorBotTask> tasks)
     {
         _tasks = new Queue<CollectorBotTask>(tasks);
-    }
-
-    public void PlaceResourceInStorage(ICollectable item)
-    {
-        _storage = item;
-
-        item.Transform.SetParent(transform);
-        item.Transform.position = _storagePositon.position;
-    }
-
-    public ICollectable ReleaseResource()
-    {
-        ICollectable collectable = _storage;
-        ClearStorag();
-
-        return collectable;
-    }
-
-    private void ClearStorag()
-    {
-        if (_storage == null)
-            return;
-
-        _storage.Transform.SetParent(null);
-        _storage = null;
     }
 
     private void SwitchToState(CollectorState state)

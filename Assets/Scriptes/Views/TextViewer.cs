@@ -5,7 +5,7 @@ public abstract class TextViewer : MonoBehaviour
 {
     [SerializeField] protected TextMeshProUGUI Text;
 
-    protected string SubText;
+    public string SubText { get; private set; }
 
     private void Awake()
     {

@@ -16,9 +16,6 @@
 
     public override bool IsComplete()
     {
-        if (_stateMachine.IsFree)
-            return false;
-
-        return true;
+        return _stateMachine.HasTask;
     }
 }

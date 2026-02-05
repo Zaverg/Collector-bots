@@ -15,24 +15,10 @@ public class Bootstrap : MonoBehaviour
     [SerializeField] private DeliveryZone _deliverZone;
     [SerializeField] private ResurceCounter _reesurceCounter;
     [SerializeField] private MineralRegistry _mineralRegistry;
+    [SerializeField] private CollectorBotDispatcher _collectorBotDispatcher;
 
     [Header("View")]
     [SerializeField] private MineralCountViewer _mineralCountView;
-
-    private void OnEnable()
-    {
-        _deliverZone.ResourceDelivered += _reesurceCounter.UpdateCounter;
-        _deliverZone.ResourceDelivered += _mineralRegistry.RemoveMineral;
-        _reesurceCounter.MineralCountChanged += _mineralCountView.UpdateView;
-    }
-
-    private void OnDisable()
-    {
-        _deliverZone.ResourceDelivered -= _reesurceCounter.UpdateCounter;
-        _deliverZone.ResourceDelivered -= _mineralRegistry.RemoveMineral;
-
-        _reesurceCounter.MineralCountChanged -= _mineralCountView.UpdateView;
-    }
 
     private void Awake()
     {
@@ -45,6 +31,26 @@ public class Bootstrap : MonoBehaviour
         _cellRegister.Initialize();
 
         _mineralSpawner.Initialize(_coroutineStarter, _mineralRegistry);
+
+        _collectorBotDispatcher.Initialize();
         _base.Initialize(_coroutineStarter, _mineralRegistry);        
+    }
+
+    private void OnEnable()
+    {
+        _deliverZone.ResourceDelivered += HandleResourceDelivered;
+        _reesurceCounter.MineralCountChanged += _mineralCountView.UpdateView;
+    }
+
+    private void OnDisable()
+    {
+        _deliverZone.ResourceDelivered -= HandleResourceDelivered;
+        _reesurceCounter.MineralCountChanged -= _mineralCountView.UpdateView;
+    }
+
+    private void HandleResourceDelivered(ICollectable collectable)
+    {
+        _reesurceCounter.UpdateCounter(collectable);
+        _mineralRegistry.RemoveMineral(collectable);
     }
 }
