@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class MineralRegistry : MonoBehaviour
 {
-    private HashSet<ICollectable> _occupiedMinerals = new HashSet<ICollectable>();
-    private HashSet<ICollectable> _availableMinerals = new HashSet<ICollectable>();
+    private HashSet<IResource> _occupiedMinerals = new HashSet<IResource>();
+    private HashSet<IResource> _availableMinerals = new HashSet<IResource>();
 
     public int AvailableMineralsCount => _availableMinerals.Count;
 
-    public void Register(ICollectable collectable)
+    public void Register(IResource collectable)
     {
         if (_occupiedMinerals.Contains(collectable) == false)
         {
@@ -18,29 +18,23 @@ public class MineralRegistry : MonoBehaviour
         }
     }
 
-    public ICollectable GetAvailableMineral()
+    public IResource GetAvailableMineral()
     {
-        ICollectable collectable = _availableMinerals.ElementAt(0);
+        IResource collectable = _availableMinerals.ElementAt(0);
 
         _availableMinerals.Remove(collectable);
         _occupiedMinerals.Add(collectable);
 
-        collectable.Dropped += OnMineralDropped;
+        collectable.Dropped += RemoveMineral;
 
         return collectable;
     }
 
-    public void RemoveMineral(ICollectable collectable)
+    public void RemoveMineral(IResource collectable)
     {
-        collectable.Dropped -= OnMineralDropped;
+        collectable.Dropped -= RemoveMineral;
         collectable.ReturnToPool();
 
-        _occupiedMinerals.Remove(collectable);
-    }
-
-    private void OnMineralDropped(ICollectable collectable)
-    {
-        collectable.Dropped -= OnMineralDropped;
         _occupiedMinerals.Remove(collectable);
     }
 }

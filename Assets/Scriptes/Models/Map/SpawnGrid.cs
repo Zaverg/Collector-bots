@@ -9,7 +9,7 @@ public class SpawnGrid : MonoBehaviour
     private HashSet<Cell> _freeCells = new HashSet<Cell>();
     private HashSet<Cell> _occupiedCells = new HashSet<Cell>();
 
-    private Dictionary<ICollectable, Cell> _mineralsToCells = new Dictionary<ICollectable, Cell>();
+    private Dictionary<IResource, Cell> _mineralsToCells = new Dictionary<IResource, Cell>();
 
     private GridCreator _gridCreator;
 
@@ -23,7 +23,7 @@ public class SpawnGrid : MonoBehaviour
         gameObject.SetActive(true);
     }
 
-    public void OccupyCell(ICollectable mineral)
+    public void OccupyCell(IResource mineral)
     {
         mineral.Taked += OnMineralTaked;
      
@@ -38,7 +38,7 @@ public class SpawnGrid : MonoBehaviour
         _occupiedCells.Add(cell);
     }
    
-    private void OnMineralTaked(ICollectable collectable)
+    private void OnMineralTaked(IResource collectable)
     {
         collectable.Taked -= OnMineralTaked;
 

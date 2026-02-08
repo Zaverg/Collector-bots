@@ -1,8 +1,8 @@
 using UnityEngine;
 
-public interface IMoveble
+public interface IMover
 {
     public void SetTarget(Vector3 target);
     public void Move();
-    public bool IsPlace();
+    public bool HasReachedTarget();
 }

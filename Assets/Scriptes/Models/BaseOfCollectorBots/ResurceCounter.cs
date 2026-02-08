@@ -7,12 +7,12 @@ public class ResurceCounter : MonoBehaviour
 
     public event Action<int> MineralCountChanged;
 
-    public void UpdateCounter(ICollectable collectable)
+    public void UpdateCounter(IResource collectable)
     {
-        if (collectable is Mineral)
-        {
-            _collectedResources++;
-            MineralCountChanged?.Invoke(_collectedResources);
-        }
+        collectable.Dropped -= UpdateCounter;
+
+        _collectedResources++;
+        MineralCountChanged?.Invoke(_collectedResources);
+        
     }
 }

@@ -1,15 +1,15 @@
 ﻿using System;
 using UnityEngine;
 
-public interface ICollectable
+public interface IResource
 {
     public Transform Transform { get; }
     public MineralConfig Config { get; }
 
-    public event Action<ICollectable> Taked;
-    public event Action<ICollectable> Dropped;
+    public event Action<IResource> Taked;
+    public event Action<IResource> Dropped;
 
     public void Take();
-    public void Drope();
+    public void Drop();
     public void ReturnToPool();
 }

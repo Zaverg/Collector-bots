@@ -3,80 +3,76 @@ using UnityEngine.AI;
 using System.Collections.Generic;
 using System;
 
-[RequireComponent(typeof(NavMeshAgent), typeof(UnitAnimator))]
+[RequireComponent(typeof(NavMeshAgent), typeof(CollectorBotAnimator))]
 public class CollectorBot : MonoBehaviour, IStateMachine
 {
     [SerializeField] private Mover _mover;
     [SerializeField] private Taker _taker;
-    [SerializeField] private Mining _mining;
+    [SerializeField] private Miner _miner;
+    [SerializeField] private Unloader _unloader;
 
     private Queue<CollectorBotTask> _tasks = new Queue<CollectorBotTask>();
     private Dictionary<StateType, CollectorState> _states = new Dictionary<StateType, CollectorState>();
 
-    private UnitAnimator _animationController;
+    private CollectorBotAnimator _animationController;
 
     private CollectorBotTask _currentTask;
     private CollectorState _currentState;
 
-    public event Action<CollectorBot> Freed;
+    public event Action<CollectorBot> OnBotAvailable;
 
     public bool HasTask => _tasks.Count > 0;
-
-    public IMoveble Mover => _mover;
+    public IMover Mover => _mover;
     public ITaker Taker => _taker;
-    public IMining Mining => _mining;
-
+    public IMiner Miner => _miner;
+    public IUnloader Dropper => _unloader;
     public Transform Transform => transform;
     public CollectorBotTask CurrentTask => _currentTask;
-    public UnitAnimator AnimationController => _animationController;
+    public CollectorBotAnimator AnimationController => _animationController;
 
-    public void Initialize()
+    public void Awake()
     {
-        _states[StateType.Idle] = new Idle();
+        _states[StateType.Idle] = new IdleState();
         _states[StateType.Moving] = new MovingState();
         _states[StateType.Taking] = new TakingState();
-        _states[StateType.Dropping] = new DroppingState();
+        _states[StateType.Dropping] = new UnloaderState();
         _states[StateType.Mining] = new MiningState();
 
         _currentState = _states[StateType.Idle];
 
-        _animationController = GetComponent<UnitAnimator>();
+        _animationController = GetComponent<CollectorBotAnimator>();
 
         _currentState.Entry(this);
     }
 
     private void Update()
     {
-        bool isCompleted = _currentState.IsComplete();
-
-        if (isCompleted)
+        if (HasTask == false && _currentState != _states[StateType.Idle])
         {
-            if (HasTask)
-            {
-                _currentTask = _tasks.Dequeue();
-                SwitchToState(_states[_currentTask.StateType]);
-
-                return;
-            }
-
-            SwitchToState(_states[StateType.Idle]);
-            Freed?.Invoke(this);
+            _currentState = _states[StateType.Idle];
+            OnBotAvailable?.Invoke(this);
         }
-        else
-        {
-            _currentState.Run(); 
-        }
+
+        _currentState.Run();       
     }
 
     public void AssignTasks(Queue<CollectorBotTask> tasks)
     {
         _tasks = new Queue<CollectorBotTask>(tasks);
+
+        SwitchToState();
     }
 
-    private void SwitchToState(CollectorState state)
+    private void SwitchToState()
     {
+        _currentTask = _tasks.Dequeue();
+        CollectorState state = _states[_currentTask.StateType];
+
+        _currentState.Completed -= SwitchToState;
         _currentState.Exit();
+
         _currentState = state;
+        _currentState.Completed += SwitchToState;
         _currentState.Entry(this);
     }
 }

@@ -9,7 +9,7 @@ public class Scanner
 
     private Collider[] collidersBuffer = new Collider[5];
 
-    public event Action<ICollectable> Detected;
+    public event Action<IResource> Detected;
 
     public Scanner(Vector3 center,LayerMask layer, float radius = 0)
     {
@@ -28,7 +28,7 @@ public class Scanner
             if (collidersBuffer[i] == null) 
                 continue;
 
-            if (collidersBuffer[i].TryGetComponent(out ICollectable colectable))
+            if (collidersBuffer[i].TryGetComponent(out IResource colectable))
                 Detected.Invoke(colectable);
         }
     }

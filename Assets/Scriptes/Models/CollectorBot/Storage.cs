@@ -2,11 +2,11 @@ using UnityEngine;
 
 public class Storage : MonoBehaviour
 {
-    private ICollectable _item;
+    private IResource _item;
 
-    public ICollectable Item => _item;
+    public IResource Item => _item;
 
-    public void SetItem(ICollectable collectable)
+    public void SetItem(IResource collectable)
     {
         if (collectable == null)
             return;

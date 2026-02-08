@@ -6,9 +6,10 @@ public interface IStateMachine
     public bool HasTask { get; }
     public CollectorBotTask CurrentTask { get; }
 
-    public IMoveble Mover { get; }
+    public IMover Mover { get; }
     public ITaker Taker { get; }
-    public IMining Mining { get; }
+    public IMiner Miner { get; }
+    public IUnloader Dropper { get; }
 
-    public UnitAnimator AnimationController { get; }
+    public CollectorBotAnimator AnimationController { get; }
 }

@@ -1,5 +1,5 @@
 public interface ITaker
 {
-    public void PlaceResourceInStorage(ICollectable collectable);
-    public ICollectable ReleaseResource();
+    public bool IsStorageFilled { get; }
+    public void PlaceResourceInStorage(IResource collectable);
 }

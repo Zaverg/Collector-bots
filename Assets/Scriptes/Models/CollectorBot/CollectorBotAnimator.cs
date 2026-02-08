@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 
 [RequireComponent(typeof(Animator))]
-public class UnitAnimator : MonoBehaviour
+public class CollectorBotAnimator : MonoBehaviour
 {
     private static readonly int s_move = Animator.StringToHash("IsMove");
 

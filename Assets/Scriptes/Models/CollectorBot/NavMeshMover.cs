@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.AI;
 
-public class CollectorBotMover : Mover
+[RequireComponent(typeof(NavMeshAgent))]
+public class NavMeshMover : Mover
 {
     [SerializeField] private float _intervalUpdatePath;
     [SerializeField] private float _stoppingDistance;
@@ -24,6 +25,7 @@ public class CollectorBotMover : Mover
             return;
 
         _targetPosition = target;
+        _agent.SetDestination(_targetPosition);
     }
 
     public override void Move() 
@@ -40,15 +42,15 @@ public class CollectorBotMover : Mover
         }
     }
 
-    public override bool IsPlace()
+    public override bool HasReachedTarget()
     {
-        if (_agent.remainingDistance <= _agent.stoppingDistance)
+        bool isPlace = _agent.remainingDistance <= _agent.stoppingDistance;
+
+        if (isPlace)
         {
             _agent.ResetPath();
-
-            return true;
         }
 
-        return false;
+        return isPlace;
     }
 }

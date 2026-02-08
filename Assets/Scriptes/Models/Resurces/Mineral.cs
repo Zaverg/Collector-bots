@@ -1,13 +1,13 @@
 using System;
 using UnityEngine;
 
-public class Mineral : MonoBehaviour, IReleasable<Mineral>, ICollectable
+public class Mineral : MonoBehaviour, IReleasable<Mineral>, IResource
 {
     [SerializeField] private MineralConfig _mineralConfig;
 
     public event Action<Mineral> Released;
-    public event Action<ICollectable> Taked;
-    public event Action<ICollectable> Dropped;
+    public event Action<IResource> Taked;
+    public event Action<IResource> Dropped;
 
     public Transform Transform => transform;
     public MineralConfig Config => _mineralConfig;
@@ -28,7 +28,7 @@ public class Mineral : MonoBehaviour, IReleasable<Mineral>, ICollectable
         Taked?.Invoke(this);
     }
 
-    public void Drope()
+    public void Drop()
     {
         Dropped?.Invoke(this);
     }
